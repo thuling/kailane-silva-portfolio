@@ -1,0 +1,9 @@
+# Arquivos locais de apoio, mockups comparativos e PDFs de trabalho
+variacoes-mockup.html
+variacoes-mockup.css
+server.cjs
+*.pdf
+.DS_Store
+Thumbs.db
+.vercel
+node_modules/
