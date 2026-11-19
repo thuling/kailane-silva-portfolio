@@ -175,12 +175,12 @@
     overflow-wrap: anywhere;
   }
 
-  :where(button:not(.media-zoom-btn), [role="button"], nav a, .nav-cta, .btn-linkedin, .motion-toggle-btn, .lightbox-close-btn, .footer-top-link) {
+  :where(button:not(.media-zoom-btn), [role="button"], nav a, .nav-cta, .btn-linkedin, .lightbox-close-btn, .footer-top-link) {
     min-block-size: var(--target-size);
     min-inline-size: var(--target-size);
   }
 
-  :where(nav a, .nav-cta, .motion-toggle-btn, .lightbox-close-btn, .footer-top-link) {
+  :where(nav a, .nav-cta, .lightbox-close-btn, .footer-top-link) {
     display: inline-flex;
     align-items: center;
   }
@@ -662,8 +662,6 @@
     display: flex;
     align-items: safe center;
     padding-block: 0.72rem;
-    padding-inline-end: var(--gutter);
-    gap: 1rem;
   }
 
   .marquee-viewport {
@@ -703,26 +701,6 @@
   .marquee-sep {
     color: var(--color-maroon);
     font-size: 0.85rem;
-  }
-
-  .motion-toggle-btn {
-    flex-shrink: 0;
-    padding-block: 0.32rem;
-    padding-inline: 0.75rem;
-    background-color: rgba(100, 16, 8, 0.08);
-    border: 1px solid rgba(100, 16, 8, 0.35);
-    border-radius: 999px;
-    color: var(--color-burgundy);
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    transition: background-color 0.2s ease, color 0.2s ease;
-  }
-
-  .motion-toggle-btn:hover:not(:disabled) {
-    background-color: var(--color-burgundy);
-    color: var(--color-cream);
   }
 }
 
@@ -1928,15 +1906,8 @@
       animation: marquee-scroll var(--marquee-duration, 72s) linear infinite;
     }
 
-    .marquee-bar:hover .marquee-track {
-      animation-play-state: paused;
-    }
-
-    /* Pausa manual controlada pelo botão acessível (WCAG 2.2.2) */
-    body.is-motion-paused .marquee-track,
-    body.is-motion-paused .ambient-spin,
-    body.is-motion-paused .ambient-spin-reverse,
-    body.is-motion-paused .ambient-spin-slow {
+    .marquee-bar:hover .marquee-track,
+    .marquee-bar:focus-within .marquee-track {
       animation-play-state: paused;
     }
 
@@ -2286,19 +2257,12 @@
     /* Faixa Marquee compacta no celular */
     .marquee-bar {
       padding-block: 0.55rem;
-      padding-inline-end: max(0.75rem, env(safe-area-inset-right, 0px));
-      gap: 0.65rem;
     }
 
     .marquee-group {
       font-size: 0.96rem;
       gap: 1.1rem;
       padding-inline-end: 1.1rem;
-    }
-
-    .motion-toggle-btn {
-      font-size: 0.68rem;
-      padding-inline: 0.65rem;
     }
 
     /* Seções fluidas e densas no celular */

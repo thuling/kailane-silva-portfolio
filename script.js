@@ -31,7 +31,7 @@
     const parallaxLayers = Array.from(document.querySelectorAll('[data-parallax-depth]'));
     if (heroFrame && parallaxLayers.length > 0 && prefersMotion && hasFinePointer) {
       heroFrame.addEventListener('pointermove', (event) => {
-        if (window.innerWidth <= MOBILE_HERO_BP || document.body.classList.contains('is-motion-paused')) return;
+        if (window.innerWidth <= MOBILE_HERO_BP) return;
         const rect = heroFrame.getBoundingClientRect();
         const relX = (event.clientX - rect.left) / rect.width - 0.5;
         const relY = (event.clientY - rect.top) / rect.height - 0.5;
@@ -51,15 +51,7 @@
       });
     }
 
-    // 3. Botão acessível para pausar/retomar animações contínuas (WCAG 2.2.2) + Marquee 100% infinito em qualquer largura de tela
-    const motionBtn = document.getElementById('motion-toggle-btn');
-    if (motionBtn) {
-      motionBtn.addEventListener('click', () => {
-        const paused = document.body.classList.toggle('is-motion-paused');
-        motionBtn.textContent = paused ? 'Ativar movimento' : 'Pausar movimento';
-      });
-    }
-
+    // 3. Marquee 100% infinito em qualquer largura de tela
     const marqueeViewport = document.getElementById('marquee-viewport');
     const marqueeTrack = document.getElementById('marquee-track');
     const ensureInfiniteMarquee = () => {
