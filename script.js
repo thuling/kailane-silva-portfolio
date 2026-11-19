@@ -1,9 +1,14 @@
 (() => {
-  // 1. Escala exata da Capa 1920x1080 (100% fiel à imagem de capa enviada)
+  // 1. Escala exata da Capa 1920x1080 no desktop (> 780px); no celular usa layout retrato nativo
   const heroFrame = document.getElementById('hero-canvas-frame');
+  const MOBILE_HERO_BP = 780;
 
   const updateHeroScale = () => {
     if (!heroFrame) return;
+    if (window.innerWidth <= MOBILE_HERO_BP) {
+      heroFrame.style.removeProperty('--hero-scale');
+      return;
+    }
     const width = heroFrame.clientWidth;
     if (width > 0) {
       heroFrame.style.setProperty('--hero-scale', String(width / 1920));
@@ -11,22 +16,22 @@
   };
 
   updateHeroScale();
+  window.addEventListener('resize', updateHeroScale, { passive: true });
 
   if (heroFrame && 'ResizeObserver' in window) {
     const ro = new ResizeObserver(updateHeroScale);
     ro.observe(heroFrame);
-  } else {
-    window.addEventListener('resize', updateHeroScale);
   }
 
   document.addEventListener('DOMContentLoaded', () => {
     const prefersMotion = window.matchMedia('(prefers-reduced-motion: no-preference)').matches;
+    const hasFinePointer = window.matchMedia('(pointer: fine)').matches;
 
-    // 2. Parallax suave com o movimento do mouse na Capa (apenas se o usuário não preferir movimento reduzido)
+    // 2. Parallax suave com o movimento do mouse na Capa (apenas desktop com ponteiro fino)
     const parallaxLayers = Array.from(document.querySelectorAll('[data-parallax-depth]'));
-    if (heroFrame && parallaxLayers.length > 0 && prefersMotion) {
+    if (heroFrame && parallaxLayers.length > 0 && prefersMotion && hasFinePointer) {
       heroFrame.addEventListener('pointermove', (event) => {
-        if (document.body.classList.contains('is-motion-paused')) return;
+        if (window.innerWidth <= MOBILE_HERO_BP || document.body.classList.contains('is-motion-paused')) return;
         const rect = heroFrame.getBoundingClientRect();
         const relX = (event.clientX - rect.left) / rect.width - 0.5;
         const relY = (event.clientY - rect.top) / rect.height - 0.5;
@@ -122,22 +127,56 @@
       watchedSections.forEach((sec) => spyObserver.observe(sec));
     }
 
-    // 7. Menu mobile acessível
+    // 7. Menu mobile acessível (Escape, clique fora e redimensionamento)
     const navToggle = document.getElementById('nav-toggle');
+    const navToggleLabel = navToggle ? navToggle.querySelector('.nav-toggle-label') : null;
     const primaryNav = document.getElementById('primary-nav');
+
+    const setMenuOpen = (open) => {
+      if (!navToggle || !primaryNav) return;
+      primaryNav.classList.toggle('is-open', open);
+      navToggle.setAttribute('aria-expanded', String(open));
+      navToggle.setAttribute('aria-label', open ? 'Fechar menu de navegação' : 'Abrir menu de navegação');
+      if (navToggleLabel) {
+        navToggleLabel.textContent = open ? 'Fechar' : 'Menu';
+      }
+    };
 
     if (navToggle && primaryNav) {
       navToggle.addEventListener('click', () => {
-        const isOpen = primaryNav.classList.toggle('is-open');
-        navToggle.setAttribute('aria-expanded', String(isOpen));
+        setMenuOpen(!primaryNav.classList.contains('is-open'));
       });
 
       primaryNav.querySelectorAll('a').forEach((link) => {
-        link.addEventListener('click', () => {
-          primaryNav.classList.remove('is-open');
-          navToggle.setAttribute('aria-expanded', 'false');
-        });
+        link.addEventListener('click', () => setMenuOpen(false));
       });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && primaryNav.classList.contains('is-open')) {
+          setMenuOpen(false);
+          navToggle.focus();
+        }
+      });
+
+      document.addEventListener('click', (event) => {
+        if (
+          primaryNav.classList.contains('is-open') &&
+          siteHeader &&
+          !siteHeader.contains(event.target)
+        ) {
+          setMenuOpen(false);
+        }
+      });
+
+      window.addEventListener(
+        'resize',
+        () => {
+          if (window.innerWidth > 860 && primaryNav.classList.contains('is-open')) {
+            setMenuOpen(false);
+          }
+        },
+        { passive: true }
+      );
     }
 
     // 8. Lightbox nativo (<dialog closedby="any">) com fallback obrigatório de backdrop
