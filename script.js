@@ -51,7 +51,7 @@
       });
     }
 
-    // 3. Botão acessível para pausar/retomar animações contínuas (WCAG 2.2.2)
+    // 3. Botão acessível para pausar/retomar animações contínuas (WCAG 2.2.2) + Marquee 100% infinito em qualquer largura de tela
     const motionBtn = document.getElementById('motion-toggle-btn');
     if (motionBtn) {
       motionBtn.addEventListener('click', () => {
@@ -59,6 +59,40 @@
         motionBtn.textContent = paused ? 'Ativar movimento' : 'Pausar movimento';
       });
     }
+
+    const marqueeViewport = document.getElementById('marquee-viewport');
+    const marqueeTrack = document.getElementById('marquee-track');
+    const ensureInfiniteMarquee = () => {
+      if (!marqueeViewport || !marqueeTrack) return;
+      const halves = marqueeTrack.querySelectorAll('.marquee-half');
+      if (halves.length !== 2) return;
+      const firstGroup = halves[0].querySelector('.marquee-group');
+      if (!firstGroup) return;
+
+      const viewportW = marqueeViewport.clientWidth;
+      const groupW = firstGroup.getBoundingClientRect().width;
+      if (viewportW <= 0 || groupW <= 0) return;
+
+      const neededPerHalf = Math.max(3, Math.ceil((viewportW + groupW) / groupW));
+      halves.forEach((half) => {
+        while (half.children.length < neededPerHalf) {
+          const clone = firstGroup.cloneNode(true);
+          clone.setAttribute('aria-hidden', 'true');
+          clone.querySelectorAll('a').forEach((a) => a.setAttribute('tabindex', '-1'));
+          half.appendChild(clone);
+        }
+      });
+
+      const halfWidth = halves[0].getBoundingClientRect().width;
+      const durationSec = Math.max(20, halfWidth / 46);
+      marqueeTrack.style.setProperty('--marquee-duration', `${durationSec.toFixed(2)}s`);
+    };
+
+    ensureInfiniteMarquee();
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(ensureInfiniteMarquee);
+    }
+    window.addEventListener('resize', ensureInfiniteMarquee, { passive: true });
 
     // 4. Fallback da barra de progresso de rolagem para navegadores sem animation-timeline: scroll()
     const scrollProgress = document.getElementById('scroll-progress');
